@@ -5,5 +5,7 @@
     "idf.openOcdConfigs": [
         "board/esp32-wrover-kit-3.3v.cfg"
     ],
-    "idf.toolsPathWin": "C:\\Users\\micae\\.espressif"
+    "idf.toolsPathWin": "C:\\Users\\micae\\.espressif",
+    "idf.portWin": "COM8",
+    "idf.flashType": "UART"
 }

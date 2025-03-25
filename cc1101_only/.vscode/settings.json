@@ -8,5 +8,7 @@
     "idf.toolsPathWin": "C:\\Users\\micae\\.espressif",
     "files.associations": {
         "esp_log.h": "c"
-    }
+    },
+    "idf.portWin": "COM3",
+    "idf.flashType": "UART"
 }

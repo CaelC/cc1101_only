@@ -48,56 +48,12 @@ bool CC1101_begin(CC1101_t* self, const uint32_t freq, bool only_pins) {
     // CC1101 is not present or the wiring/pins is wrong
     if (version<20) return false;
 
-    CC1101_setIDLEstate(self);
-
-    // Configure GDO0 to assert only when valid packet with CRC OK is received
-    CC1101_writeRegister(self, CC1101_IOCFG0, 0x07);
-
-    // FIFO threshold settings
-    CC1101_writeRegister(self, CC1101_FIFOTHR, 0x07);
-
-    CC1101_writeRegister(self, CC1101_PKTCTRL1, 0x20);
-    CC1101_writeRegister(self, CC1101_PKTLEN, MAX_PACKET_LEN);
-
-    // Configure data rate (slower data rates work better with WOR) - 0.5kbps
-    CC1101_writeRegister(self, CC1101_MDMCFG4, 0xF7);
-    CC1101_writeRegister(self, CC1101_MDMCFG3, 0x83);
-    CC1101_writeRegister(self, CC1101_MDMCFG2, 0x03); // 2-FSK, 30/32 sync word bits
-    CC1101_writeRegister(self, CC1101_MDMCFG1, 0x72); // NUM_PREAMBLE=7 (192 bytes)
-
-    // State machine configuration
-    CC1101_writeRegister(self, CC1101_MCSM0, 0x18);
-    CC1101_writeRegister(self, CC1101_MCSM1, 0x30); // CCA enabled TX->IDLE RX->IDLE
-
-    CC1101_writeRegister(self, CC1101_WOREVT1, 0x87);
-    CC1101_writeRegister(self, CC1101_WOREVT0, 0x6B);
-    CC1101_writeRegister(self, CC1101_WORCTRL, 0x78); // WOR_RES=0
-
-    // Frequency offset compensation
-    CC1101_writeRegister(self, CC1101_FOCCFG, 0x16);
-
-    // Receiver settings for better sensitivity
-    CC1101_writeRegister(self, CC1101_AGCCTRL2, 0x07);    // Max gain, higher sensitivity (instead of 0x43)
-    CC1101_writeRegister(self, CC1101_AGCCTRL0, 0x91);    // AGC filter settings for better sensitivity
-
-    // Frequency synthesizer calibration
-    CC1101_writeRegister(self, CC1101_FSCAL3, 0xE9);
-    CC1101_writeRegister(self, CC1101_FSCAL2, 0x2A);
-    CC1101_writeRegister(self, CC1101_FSCAL1, 0x00);
-    CC1101_writeRegister(self, CC1101_FSCAL0, 0x1F);
-    
-    // Test settings (required for proper operation)
-    CC1101_writeRegister(self, CC1101_TEST2, 0x81);
-    CC1101_writeRegister(self, CC1101_TEST1, 0x35);
-    CC1101_writeRegister(self, CC1101_TEST0, 0x09);
-
-    // Increase output power for transmitter (within ISM regulations)
-    // For EU 433MHz ISM: 10mW (10dBm) max
-    // For US 915MHz ISM: 25mW (14dBm) max
-    CC1101_writeRegister(self, CC1101_FREND0, 0x17);      // Higher power setting
-    CC1101_writeRegister(self, CC1101_PATABLE, 0xC0);     // ~10dBm output (for 433MHz)
-
-    // Disable address check
+    CC1101_setCommonRegisters(self);
+    CC1101_enableWhitening(self);
+    CC1101_setFrequency(self, freq);
+    CC1101_setBaudrate4800bps(self);
+    CC1101_optimizeSensitivity(self);
+    CC1101_setPower10dbm(self);
     CC1101_disableAddressCheck(self);
 
     return true;
